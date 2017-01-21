@@ -1,14 +1,29 @@
-﻿namespace WellsWithHelix.ViewModels
+﻿using DevExpress.Mvvm.POCO;
+
+namespace WellsWithHelix.ViewModels
 {
     public class AxisViewModel
     {
-        public string Title { get; set; }
+        public AxisViewModel()
+        {
+            NumberFormat = "F2";
+        }
 
-        public double Minimum { get; set; }
-        public double Maximum { get; set; }
+        public static AxisViewModel Create()
+        {
+            return ViewModelSource.Create(() => new AxisViewModel());
+        }
 
-        public double MajorGrid { get; set; }
-        public double MinorGrid { get; set; }
+        public virtual string Title { get; set; }
+
+        public virtual double Minimum { get; set; }
+        public virtual double Maximum { get; set; }
+
+        public virtual double MajorGrid { get; set; }
+        public virtual double MinorGrid { get; set; }
+
+        public virtual string UnitText { get; set; }
+        public virtual string NumberFormat { get; set; }
     }
 
 }
