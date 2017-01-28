@@ -4,29 +4,24 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WellsWithHelix"
+        xmlns:views="clr-namespace:WellsWithHelix.Views"
         xmlns:helix="clr-namespace:HelixToolkit.Wpf;assembly=HelixToolkit.Wpf"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525"
         WindowState="Maximized">
     <Grid>
         <helix:HelixViewport3D x:Name="ViewPort" 
+                               ClipToBounds="False"
+                               RenderOptions.EdgeMode="Unspecified"
                                ZoomAroundMouseDownPoint="True"
-                               ZoomExtentsWhenLoaded="True">
+                               ZoomExtentsWhenLoaded="True"
+                               MouseDoubleClick="ViewPort_MouseDoubleClick"
+                               MouseLeftButtonUp="ViewPort_MouseLeftButtonUp">
             
             <helix:DefaultLights/>
 
-            <ModelVisual3D x:Name="AxisLabelsModel">
-                <ModelVisual3D.Children>
-                    <helix:BillboardTextGroupVisual3D x:Name="Billboard"
-                                                      FontSize="10"
-                                                      Foreground="White"
-                                                      Background="Black"
-                                                      Offset="10,10"
-                                                      IsEnabled="True"/>
-                </ModelVisual3D.Children>
-            </ModelVisual3D>
-
-            <ModelVisual3D x:Name="AxisGridModel"/>
+            <views:AxisCageVisual3D x:Name="AxisCage"
+                                    IsHitTestVisible="False"/>
 
             <ModelVisual3D x:Name="SeriesModel"/>            
 
@@ -35,6 +30,7 @@
         <Button Click="ZoomExtents"
                 Content="Reset Zoom"
                 HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"></Button>
+                VerticalAlignment="Bottom"/>
+        
     </Grid>
 </Window>

@@ -71,9 +71,20 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ViewModels\AxisViewModel.cs" />
+    <Compile Include="Enums\GalleryType3D.cs" />
+    <Compile Include="Enums\PointMarkerType3D.cs" />
+    <Compile Include="Helpers\Point3DHelper.cs" />
+    <Compile Include="Helpers\RandomColorGenerator.cs" />
+    <Compile Include="ViewModels\AxisSettingsViewModel.cs" />
+    <Compile Include="ViewModels\Interfaces\IAxisSettingsViewModel.cs" />
+    <Compile Include="ViewModels\Interfaces\IPlot3DViewModel.cs" />
+    <Compile Include="ViewModels\Interfaces\IPoint3DViewModel.cs" />
+    <Compile Include="ViewModels\Interfaces\ISeries3DViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\PlotViewModel.cs" />
+    <Compile Include="ViewModels\Plot3DViewModel.cs" />
+    <Compile Include="ViewModels\Series3DViewModel.cs" />
+    <Compile Include="Views\AxisCageVisual3D.cs" />
+    <Compile Include="Views\InteractiveVisual3D.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -111,13 +122,31 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="Resources\Well-01.dev" />
+    <None Include="Resources\Well-02.dev" />
+    <None Include="Resources\Well-03.dev" />
+    <None Include="Resources\Well-04.dev" />
+    <None Include="Resources\Well-05.dev" />
+    <None Include="Resources\Well-06.dev" />
+    <None Include="Resources\Well-07.dev" />
+    <None Include="Resources\Well-08.dev" />
+    <None Include="Resources\Well-09.dev" />
+    <None Include="Resources\Well-10.dev" />
+    <None Include="Resources\Well-11.dev" />
+    <None Include="Resources\Well-12.dev" />
+    <None Include="Resources\Well-13.dev" />
+    <None Include="Resources\Well-14.dev" />
+    <None Include="Resources\Well-15.dev" />
+    <None Include="Resources\Well-16.dev" />
+    <None Include="Resources\Well-17.dev" />
+    <None Include="Resources\Well-18.dev" />
+    <None Include="Resources\Well-19.dev" />
+    <None Include="Resources\Well-20.dev" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

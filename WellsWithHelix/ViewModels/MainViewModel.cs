@@ -1,5 +1,4 @@
-﻿using System;
-using DevExpress.Mvvm.POCO;
+﻿using DevExpress.Mvvm.POCO;
 
 namespace WellsWithHelix.ViewModels
 {
@@ -15,11 +14,11 @@ namespace WellsWithHelix.ViewModels
             return ViewModelSource.Create(() => new MainViewModel());
         }
 
-        public virtual PlotViewModel Plot { get; set; }
+        public virtual IPlot3DViewModel Plot { get; set; }
 
         public void GeneratePlot()
         {
-            var plot = PlotViewModel.Create();
+            var plot = Plot3DViewModel.Create();
 
             Plot = plot;
         }

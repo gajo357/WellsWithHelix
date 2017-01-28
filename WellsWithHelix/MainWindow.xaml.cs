@@ -6,6 +6,8 @@ using WellsWithHelix.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Windows.Media.Media3D;
+using WellsWithHelix.Views;
+using System.Linq;
 
 namespace WellsWithHelix
 {
@@ -14,6 +16,32 @@ namespace WellsWithHelix
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static readonly DependencyProperty AxisXVectorProperty = DependencyProperty.Register(nameof(AxisXVector),
+            typeof(Vector3D), typeof(MainWindow),
+            new PropertyMetadata(new Vector3D(1, 0, 0)));
+        public static readonly DependencyProperty AxisYVectorProperty = DependencyProperty.Register(nameof(AxisYVector),
+            typeof(Vector3D), typeof(MainWindow),
+            new PropertyMetadata(new Vector3D(0, 1, 0)));
+        public static readonly DependencyProperty AxisZVectorProperty = DependencyProperty.Register(nameof(AxisZVector),
+            typeof(Vector3D), typeof(MainWindow),
+            new PropertyMetadata(new Vector3D(0, 0, -1)));
+
+        public Vector3D AxisXVector
+        {
+            get { return (Vector3D)GetValue(AxisXVectorProperty); }
+            set { SetValue(AxisXVectorProperty, value); }
+        }
+        public Vector3D AxisYVector
+        {
+            get { return (Vector3D)GetValue(AxisYVectorProperty); }
+            set { SetValue(AxisYVectorProperty, value); }
+        }
+        public Vector3D AxisZVector
+        {
+            get { return (Vector3D)GetValue(AxisZVectorProperty); }
+            set { SetValue(AxisZVectorProperty, value); }
+        }
+
         private MainViewModel ViewModel => DataContext as MainViewModel;
 
         public MainWindow()
@@ -38,20 +66,54 @@ namespace WellsWithHelix
 
         private void PlotChanged()
         {
-            Dispatcher.Invoke(() => AxisGridModel.Children.Clear());
-            Dispatcher.Invoke(() => AxisLabelsModel.Children.Clear());
-            Dispatcher.Invoke(() => SeriesModel.Children.Clear());
-
-            // Add axis labels
-            Dispatcher.Invoke(() => Billboard.Items = CreateGridLabels(ViewModel.Plot));
-            Dispatcher.Invoke(() => AxisLabelsModel.Children.Add(Billboard));
-
-            // add axis grid
+            // update axis grid
+            Dispatcher.Invoke(() => ViewPort.Children.Remove(AxisCage));
+            Dispatcher.Invoke(() => UpdateAxisCage(AxisCage, ViewModel.Plot));
+            Dispatcher.Invoke(() => ViewPort.Children.Add(AxisCage));
 
             // add series
-
+            Dispatcher.Invoke(() => ViewPort.Children.Remove(SeriesModel));
+            Dispatcher.Invoke(() => CreateSeries(SeriesModel, ViewModel.Plot));
+            Dispatcher.Invoke(() => ViewPort.Children.Add(SeriesModel));
 
             ZoomExtents();
+        }
+
+        private void CreateSeries(ModelVisual3D seriesModel, IPlot3DViewModel plot)
+        {
+            seriesModel.Children.Clear();
+            foreach (var series in plot.Series)
+            {
+                seriesModel.Children.Add(new InteractiveVisual3D(series, AxisXVector, AxisYVector, AxisZVector));
+            }
+        }
+
+        private void UpdateAxisCage(AxisCageVisual3D axisCage, IPlot3DViewModel plot)
+        {
+            axisCage.BeginEdit();
+
+            axisCage.AxisTitleX = plot.AxisXSettings.Title;
+            axisCage.NumberFormatX = plot.AxisXSettings.DisplayFormat;
+            axisCage.MinX = plot.AxisXSettings.Minimum;
+            axisCage.MaxX = plot.AxisXSettings.Maximum;
+            axisCage.GridMajorX = plot.AxisXSettings.MajorGrid;
+            axisCage.GridMinorX = plot.AxisXSettings.MinorGrid;
+
+            axisCage.AxisTitleY = plot.AxisZSettings.Title;
+            axisCage.NumberFormatY = plot.AxisZSettings.DisplayFormat;
+            axisCage.MinY = plot.AxisZSettings.Minimum;
+            axisCage.MaxY = plot.AxisZSettings.Maximum;
+            axisCage.GridMajorY = plot.AxisZSettings.MajorGrid;
+            axisCage.GridMinorY = plot.AxisZSettings.MinorGrid;
+
+            axisCage.AxisTitleZ = plot.AxisValueSettings.Title;
+            axisCage.NumberFormatZ = plot.AxisValueSettings.DisplayFormat;
+            axisCage.MinZ = plot.AxisValueSettings.Minimum;
+            axisCage.MaxZ = plot.AxisValueSettings.Maximum;
+            axisCage.GridMajorZ = plot.AxisValueSettings.MajorGrid;
+            axisCage.GridMinorZ = plot.AxisValueSettings.MinorGrid;
+
+            axisCage.EndEdit();
         }
 
         public void ZoomExtents(object sender, EventArgs e)
@@ -61,57 +123,25 @@ namespace WellsWithHelix
         
         public void ZoomExtents()
         {
-            Dispatcher.Invoke(() => ViewPort.ZoomExtents(0.5));
+            // time in miliseconds
+            Dispatcher.Invoke(() => ViewPort.ZoomExtents(500));
         }
 
-        private static List<BillboardTextItem> CreateGridLabels(PlotViewModel plot)
+        private void ViewPort_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var items = new List<BillboardTextItem>();
 
-            var xVector = new Vector3D(1, 0, 0);
-            var yVector = new Vector3D(0, 1, 0);
-            var zVector = new Vector3D(0, 0, -1);
-
-            items.AddRange(CraeteAxisLabels(plot.AxisX, plot.AxisY.Maximum, 
-                xVector, yVector, new Point3D(0, 0, -plot.AxisZ.Maximum)));
-
-            items.AddRange(CraeteAxisLabels(plot.AxisY, plot.AxisX.Maximum, 
-                yVector, xVector, new Point3D(0, 0, -plot.AxisZ.Maximum)));
-
-            items.AddRange(CraeteAxisLabels(plot.AxisZ, plot.AxisY.Maximum, 
-                zVector, yVector, new Point3D(plot.AxisX.Minimum, 0, 0)));
-            
-            return items;
         }
 
-        private static IEnumerable<BillboardTextItem> CraeteAxisLabels(AxisViewModel axis, double widthMaximum, 
-            Vector3D lengthVector, Vector3D widthVector, Point3D offset)
+        private void ViewPort_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var eps = axis.MinorGrid / 10;
-            for(var length = axis.Minimum; length <= axis.Maximum + eps; length += axis.MajorGrid)
+            var visual = ViewPort.FindNearestVisual(e.GetPosition(ViewPort));
+            if (visual == null)
+                return;
+
+            foreach (var serie in SeriesModel.Children.Cast<InteractiveVisual3D>())
             {
-                var item = new BillboardTextItem();
-                item.Position = GetPoint(offset, length, widthMaximum + 20, lengthVector, widthVector);
-                item.Text = FormatNumber(length, axis.NumberFormat);
-
-                yield return item;
+                serie.IsSelected = serie == visual;
             }
-
-            var midPoint = axis.Minimum + (axis.Maximum - axis.Minimum) / 2;
-            var axisTitle = new BillboardTextItem();
-            axisTitle.Position = GetPoint(offset, midPoint, widthMaximum + 50, lengthVector, widthVector);
-            axisTitle.Text = axis.Title;
-            yield return axisTitle;
-        }
-
-        private static string FormatNumber(double length, string numberFormat)
-        {
-            return string.Format("{0:" + numberFormat + "}", length);
-        }
-
-        private static Point3D GetPoint(Point3D offset, double length, double width, Vector3D lengthVector, Vector3D widthVector)
-        {
-            return offset + (lengthVector * length) + (widthVector * width);
         }
     }
 }
